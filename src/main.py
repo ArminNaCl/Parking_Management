@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Query
 
 from src.auth.router import auth_router
+from src.auth.views import auth_model_api
 
 app = FastAPI()
 
@@ -56,5 +57,6 @@ async def update_item(item_id: int, item: Item, q: str | None = None):
 
 
 api.include_router(auth_router, prefix="/users", tags=["users"])
+api.include_router(auth_model_api, prefix="/users2", tags=["users2"])
 
 app.mount("/api/v1/", app=api)
