@@ -1,13 +1,17 @@
 from typing import Union, Annotated
 from pydantic import BaseModel
 
+from fastapi import FastAPI, Query, Depends
+from fastapi.security import OAuth2PasswordBearer
 
-from fastapi import FastAPI, Query
 
 from src.auth.router import auth_router
 from src.auth.views import auth_model_api
 
 app = FastAPI()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 api = FastAPI(
     title="Armin",
@@ -16,6 +20,7 @@ api = FastAPI(
     openapi_url="/docs/openapi.json",
     docs_url="/docs",
     redoc_url="/redoc",
+    dependencies= [Depends(oauth2_scheme),],
 )
 
 
@@ -33,12 +38,12 @@ async def read_root():
 
 @api.get("/items/{item_id}")
 async def read_item(
+    token: Annotated[str, Depends(oauth2_scheme)],
     item_id: int,
     tax: Annotated[float | None, Query(ge=0, le=1)] = ...,
     names : Annotated[list, Query()] = [],
     full: Annotated[str|None, Query(title="title", alias="full_query", description="some words", regex="")] =  None ,
     q: Annotated[str | None, Query(max_length=50)] = None,
-    
 ):
     return {"item_id": item_id, "q": q, "tax": tax}
 

@@ -6,15 +6,16 @@ class CarBase(BaseModel):
     brand: str
     model: str
     color: str
-    
+
 
 class UserBase(BaseModel):
     email: str
-    username: str | None
+    username: str
 
 
 class CarCreate(CarBase):
     pass
+
 
 class Car(CarBase):
     id: int
@@ -22,7 +23,8 @@ class Car(CarBase):
 
     class Config:
         orm_mode = True
-        
+
+
 class UserCreate(UserBase):
     password: str
 
@@ -37,3 +39,14 @@ class User(UserBase):
         orm_mode = True
 
 
+class UserInDB(User):
+    hashed_password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
