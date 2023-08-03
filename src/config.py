@@ -19,7 +19,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = LOCAL_ACCESS_TOKEN_EXPIRE_MINUTES
 
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/users/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
