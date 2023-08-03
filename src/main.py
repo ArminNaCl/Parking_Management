@@ -2,15 +2,14 @@ from typing import Union, Annotated
 from pydantic import BaseModel
 
 from fastapi import FastAPI, Query, Depends
-from fastapi.security import OAuth2PasswordBearer
 
 
 from src.auth.router import auth_router
 from src.auth.views import auth_model_api
+from src.config import oauth2_scheme
 
 app = FastAPI()
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 api = FastAPI(
@@ -31,9 +30,9 @@ class Item(BaseModel):
     tax: Union[float, None] = None
 
 
-@api.get("/")
-async def read_root():
-    return {"Hello": "World"}
+# @api.get("/")
+# async def read_root():
+#     return {"Hello": "World"}
 
 
 @api.get("/items/{item_id}")
@@ -61,7 +60,7 @@ async def update_item(item_id: int, item: Item, q: str | None = None):
     return result
 
 
-api.include_router(auth_router, prefix="/users", tags=["users"])
-api.include_router(auth_model_api, prefix="/users2", tags=["users2"])
+# api.include_router(auth_router, prefix="/users", tags=["users"])
+api.include_router(auth_model_api, prefix="/users", tags=["users2"])
 
 app.mount("/api/v1/", app=api)

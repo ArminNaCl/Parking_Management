@@ -1,24 +1,21 @@
 from datetime import datetime, timedelta
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from jose import JWTError, jwt
 from typing import Annotated
 
 
 
 from src.auth import models, schemas
-from src.config import SECRET_KEY, ALGORITHM
+from src.config import SECRET_KEY, ALGORITHM, pwd_context,oauth2_scheme
+from src.database import get_db
 
 
 
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
@@ -28,7 +25,7 @@ def verify_password(plain_password, hashed_password):
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-def authenticate_user(db, username:str,password:str):
+def authenticate_user(username:str,password:str,db:Session=Depends(get_db)):
     user = get_user_by_username(db,username)
     if not user:
         return False
@@ -46,7 +43,7 @@ def create_access_token(data: dict,expires_delta: timedelta | None=None):
     encoded_jwt = jwt.encode(to_encode,SECRET_KEY,algorithm=ALGORITHM)
     return encoded_jwt
 
-async def get_current_user(db:Session, token: Annotated[str, Depends(oauth2_scheme)]):
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],db:Session=Depends(get_db)):
     credentials_exceptions = HTTPException(
         status_code = status.HTTP_401_UNAUTHORIZED,
         detail= "Could not validate credentials",
@@ -61,11 +58,15 @@ async def get_current_user(db:Session, token: Annotated[str, Depends(oauth2_sche
         
     except JWTError:
         raise credentials_exceptions
-    user = get_user(db, username =token_data.username)
+    user = get_user_by_username(db, username =token_data.username)
     if user is None:
         raise credentials_exceptions
     return user
 
+def get_current_active_user(current_user:Annotated[schemas.User,Depends(get_current_user)]):
+    if not current_user.is_active:
+        raise HTTPException(status_code=400, detail= "Inactive User")
+    return current_user
 
 
 
