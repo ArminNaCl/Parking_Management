@@ -1,17 +1,8 @@
-from typing import Union
-
-from pydantic import BaseModel
-
 from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from src.database import Base
 
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
 
 
 class User(Base):
