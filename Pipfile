@@ -10,6 +10,7 @@ sqlalchemy = "*"
 python-multipart = "*"
 python-jose = "*"
 passlib = "*"
+redis = "*"
 
 [dev-packages]
 

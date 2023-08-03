@@ -7,7 +7,7 @@ from jose import JWTError, jwt
 from typing import Annotated
 
 from src.auth import models, schemas
-from src.config import SECRET_KEY, ALGORITHM, pwd_context, oauth2_scheme
+from src.config import SECRET_KEY, ALGORITHM, pwd_context, oauth2_scheme, redis_client
 from src.database import get_db
 
 
@@ -48,6 +48,8 @@ async def get_current_user(
         headers={"WWW-Authentication": "Bearer"},
     )
     try:
+        if redis_client.hget(token, "Blacklist"):
+            raise credentials_exceptions
         payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
         username = payload.get("sub")
         if username is None:
@@ -61,6 +63,10 @@ async def get_current_user(
         raise credentials_exceptions
     return user
 
+def logout_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+    redis_client.hset(token, "Blacklist",1)
+    return schemas.Token(access_token=token,token_type="bearer" )
+    
 
 def get_current_active_user(
     current_user: Annotated[schemas.User, Depends(get_current_user)]
