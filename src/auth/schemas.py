@@ -3,9 +3,9 @@ from pydantic import BaseModel
 
 class CarBase(BaseModel):
     plate_number: str
-    brand: str
-    model: str
-    color: str
+    brand: str | None
+    model: str | None
+    color: str | None
 
 
 class UserBase(BaseModel):
