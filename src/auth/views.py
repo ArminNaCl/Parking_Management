@@ -11,6 +11,9 @@ from src.auth import service, models, schemas
 from src.database import engine, get_db
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES, oauth2_scheme
 
+from src.record.schemas import Record
+from src.record.service import get_records_of_user
+
 models.Base.metadata.create_all(bind=engine)  # should move to manage.py
 
 user_api = APIRouter()
@@ -94,3 +97,13 @@ def create_car_for_user(
 def read_cars(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     cars = service.get_cars(db, skip=skip, limit=limit)
     return cars
+
+
+@user_api.get("/me/records/", response_model=list[Record])
+def get_current_user_records(
+    current_user: Annotated[schemas.User, Depends(service.get_current_active_user)],
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+):
+    return get_records_of_user(db, user_id=current_user.id, skip=skip,limit=limit)
