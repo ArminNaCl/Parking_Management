@@ -20,6 +20,7 @@ class CarCreate(CarBase):
 class Car(CarBase):
     id: int
     owner_id: int
+    owner : UserBase | None = None
 
     class Config:
         orm_mode = True
