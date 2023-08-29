@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 
 from sqlalchemy.orm import Session
-from typing import Annotated
+from typing import Annotated, Literal
 
 from src.auth import service, models, schemas
 from src.database import engine, get_db
@@ -46,9 +46,12 @@ def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @auth_api.get("/token", response_model=schemas.Token)
-def logout_for_access_token(token:Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
-    return service.logout_user(token,db)
+def logout_for_access_token(
+    token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)
+):
+    return service.logout_user(token, db)
 
 
 @user_api.get("", response_model=list[schemas.User])
@@ -103,7 +106,24 @@ def read_cars(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
 def get_current_user_records(
     current_user: Annotated[schemas.User, Depends(service.get_current_active_user)],
     skip: int = 0,
-    limit: int = 10,
+    limit: int = 100,
+    from_date: str = None,
+    to_date: str = None,
+    record_type: Literal["Open", "Close", "All"]="All",
+    car_id: int = None,
     db: Session = Depends(get_db),
 ):
-    return get_records_of_user(db, user_id=current_user.id, skip=skip,limit=limit)
+    print(record_type)
+    return get_records_of_user(
+        db,
+        user_id=current_user.id,
+        from_date=from_date,
+        to_date=to_date,
+        record_type=record_type,
+        skip=skip,
+        limit=limit,
+        car_id=car_id,
+    )
+
+
+

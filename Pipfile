@@ -12,6 +12,7 @@ python-jose = "*"
 passlib = "*"
 redis = "*"
 pydantic = "*"
+pillow = "*"
 
 [dev-packages]
 
