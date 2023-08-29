@@ -76,7 +76,7 @@ cover/
 
 # Django stuff:
 *.log
-local_settings.py
+local_config.py
 db.sqlite3
 db.sqlite3-journal
 
@@ -191,3 +191,6 @@ pyrightconfig.json
 
 
 sqlite.db
+
+src/local_config.py
+local_config.py 
