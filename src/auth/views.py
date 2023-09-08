@@ -113,7 +113,6 @@ def get_current_user_records(
     car_id: int = None,
     db: Session = Depends(get_db),
 ):
-    print(record_type)
     return get_records_of_user(
         db,
         user_id=current_user.id,

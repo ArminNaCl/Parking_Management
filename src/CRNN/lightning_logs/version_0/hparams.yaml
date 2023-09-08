@@ -1,0 +1,9 @@
+img_h: 32
+lr: 0.0005
+lr_patience: 10
+lr_reduce_factor: 0.1
+lstm_input: 64
+min_lr: 5.0e-06
+n_channels: 1
+n_classes: 36
+n_hidden: 256

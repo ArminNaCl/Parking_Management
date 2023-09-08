@@ -12,6 +12,7 @@ from src.database import engine, get_db
 from src.record import schemas, models, service
 from src.auth.service import get_car_by_plate_number
 from src.record.helper import image_to_str
+from src.CRNN.crnn_helper import crnn_helper
 
 
 models.Base.metadata.create_all(bind=engine)  # should move to manage.py
@@ -79,7 +80,7 @@ async def create_record_with_plate(
             f.write(file.file.read())
 
         image = Image.open(image_path)
-        plate_number = image_to_str(image)
+        plate_number = crnn_helper(image_path)
 
         car = get_car_by_plate_number(db=db, plate_number=plate_number)
         if not car:
