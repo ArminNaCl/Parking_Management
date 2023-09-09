@@ -1,6 +1,7 @@
 import datetime
 
 from pydantic import BaseModel
+from typing import Union
 
 from src.car.schemas import Car 
 
@@ -17,7 +18,7 @@ class RecordCreate(RecordBase):
         
 class Record(RecordCreate):
     id: int
-    exit_time : datetime.datetime | None = None
+    exit_time : Union[datetime.datetime, None] = None
     car : Car 
 
     

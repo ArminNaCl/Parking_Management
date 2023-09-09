@@ -1,12 +1,13 @@
 from fastapi import Depends
 
 from sqlalchemy.orm import Session
+from typing import Union
 
 
 from src.car import models, schemas
 
 
-def get_cars(db: Session, skip: int = 0, limit: int = 10, user_id=None):
+def get_cars(db: Session, skip: int = 0, limit: int = 10, user_id: Union[int, None]=None):
     queryset = db.query(models.Car)
     if user_id:
         queryset = queryset.filter(models.Car.owner_id == user_id)

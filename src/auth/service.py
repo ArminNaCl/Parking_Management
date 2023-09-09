@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, status
 
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
-from typing import Annotated
+from typing import Annotated, Union
 
 from src.auth import models, schemas
 from src.config import SECRET_KEY, ALGORITHM, pwd_context, oauth2_scheme, redis_client
@@ -28,7 +28,7 @@ def authenticate_user(username: str, password: str, db: Session = Depends(get_db
     return user
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta

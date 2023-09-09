@@ -4,7 +4,7 @@ import os
 from fastapi import Depends, APIRouter, HTTPException, File, UploadFile
 
 from sqlalchemy.orm import Session
-from typing import Literal
+from typing import Literal, Union
 
 from src.database import engine, get_db
 from src.auth import (
@@ -34,7 +34,7 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return users
 
 
-@admin_router.get("/{user_id}/", response_model=auth_schemas.User)
+@admin_router.get("/users/{user_id}/", response_model=auth_schemas.User)
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = auth_service.get_user(db, user_id=user_id)
     if db_user is None:
@@ -51,7 +51,7 @@ def create_car_for_user(
 
 @admin_router.get("/cars/", response_model=list[car_schemas.Car])
 def read_cars(
-    skip: int = 0, limit: int = 10, user_id: int = None, db: Session = Depends(get_db)
+    skip: int = 0, limit: int = 10, user_id: Union[int, None] = None, db: Session = Depends(get_db)
 ):
     cars = car_service.get_cars(db, skip=skip, limit=limit, user_id=user_id)
     return cars
@@ -68,7 +68,7 @@ def get_records(
     limit: int = 100,
     skip: int = 0,
 ):
-    return record_schemas.get_records(
+    return record_service.get_records(
         db,
         user_id=user_id,
         car_id=car_id,
@@ -91,7 +91,7 @@ async def create_record_with_plate(
 
         plate_number = crnn_helper(image_path)
 
-        car = auth_service.get_car_by_plate_number(db=db, plate_number=plate_number)
+        car = car_service.get_car_by_plate_number(db=db, plate_number=plate_number)
         if not car:
             raise HTTPException(status_code=404, detail="Car not found")
 
@@ -118,7 +118,7 @@ async def update_record_with_plate(
             f.write(file.file.read())
 
         plate_number = crnn_helper(image_path)
-        car = auth_service.get_car_by_plate_number(db=db, plate_number=plate_number)
+        car = car_service.get_car_by_plate_number(db=db, plate_number=plate_number)
 
         if not car:
             raise HTTPException(status_code=404, detail="Car not found")
