@@ -2,7 +2,7 @@ import datetime
 
 from pydantic import BaseModel
 
-from src.auth.schemas import User, Car 
+from src.car.schemas import Car 
 
 class RecordBase(BaseModel):
     car_id : int

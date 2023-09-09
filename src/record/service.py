@@ -3,15 +3,14 @@ from datetime import datetime
 from typing import Literal
 
 from sqlalchemy.orm import Session
-from src.database import get_db
 
 from src.record import schemas, models
-from src.auth.models import Car
+from src.car.models import Car
 
 
 def get_records(
     db: Session,
-    user_id: int =None,
+    user_id: int = None,
     car_id: int = None,
     from_date: str = None,
     to_date: str = None,
@@ -115,6 +114,3 @@ def update_record(db: Session, record_id: int, record: schemas.Record):
     db.commit()
     db.refresh(db_record)
     return db_record
-
-
-

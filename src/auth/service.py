@@ -63,10 +63,13 @@ async def get_current_user(
         raise credentials_exceptions
     return user
 
-def logout_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
-    redis_client.hset(token, "Blacklist",1)
-    return schemas.Token(access_token=token,token_type="bearer" )
-    
+
+def logout_user(
+    token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)
+):
+    redis_client.hset(token, "Blacklist", 1)
+    return schemas.Token(access_token=token, token_type="bearer")
+
 
 def get_current_active_user(
     current_user: Annotated[schemas.User, Depends(get_current_user)]
@@ -77,7 +80,7 @@ def get_current_active_user(
 
 
 def get_current_superuser(
-    current_user:Annotated[schemas.User, Depends(get_current_active_user)]
+    current_user: Annotated[schemas.User, Depends(get_current_active_user)]
 ):
     if not current_user.is_admin:
         raise HTTPException(
@@ -111,34 +114,3 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
-
-
-def get_cars(db: Session, skip: int = 0, limit: int = 10):
-    return db.query(models.Car).offset(skip).limit(limit).all()
-
-def get_car_by_plate_number(db:Session, plate_number:str):
-    return db.query(models.Car).filter(plate_number==models.Car.plate_number).first()
-
-
-def get_user_cars(db: Session, user_id: int, skip: int = 0, limit: int = 10):
-    return (
-        db.query(models.Car)
-        .filter(models.Car.owner_id == user_id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-
-
-def create_user_car(db: Session, car: schemas.CarCreate, user_id: int):
-    db_car = models.Car(**car.dict(), owner_id=user_id)
-    db.add(db_car)
-    db.commit()
-    db.refresh(db_car)
-    return db_car
-
-def get_or_create_user_car(db: Session, car: Depends(get_car_by_plate_number),plate_number:str, user_id=int):
-    create_flag = False
-    if car:
-        return car, create_flag
-    car = create_user_car(car={"plate_number": plate_number}, user_id=user_id)
